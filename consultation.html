@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GéoRéseau Bénin — Géoportail des Points Géodésiques</title>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://basemaps.cartocdn.com" crossorigin>
+    <link rel="preconnect" href="https://tile.opentopomap.org" crossorigin>
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        button, a, select, input {
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: Candara, Calibri, 'Segoe UI', Arial, sans-serif;
+            overflow: hidden;
+            background: #111827;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100%;
+            background: linear-gradient(180deg, #111827 0%, #030712 100%);
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.4);
+            transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(100%);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #030712 0%, #111827 100%);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 3px solid #3b82f6;
+        }
+
+        .sidebar-header h1 {
+            font-family: 'Candara, Calibri, Trebuchet MS, Arial', sans-serif;
+            font-size: 15px;
+            margin-bottom: 5px;
+            color: #93c5fd;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header p {
+            font-size: 11px;
+            opacity: 0.9;
+            color: #94a3b8;
+        }
+
+        .sidebar-header .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 11px;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-header .back-link:hover {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+        }
+
+        .sidebar-content {
+            padding: 10px;
+        }
+
+        .section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section h3 {
+            font-size: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #93c5fd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section h3 i {
+            color: #3b82f6;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 5px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.95);
+            color: #111827;
+            font-size: 12px;
+        }
+
+        .search-box input::placeholder {
+            color: #666;
+        }
+
+        .search-box button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background: #3b82f6;
+            color: white;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-box button:hover {
+            background: #2563eb;
+        }
+
+        .position-section {
+            display: flex;
+            gap: 8px;
+        }
+
+        .position-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .position-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .position-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        .position-btn.loading {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+
+        .position-btn.success {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        }
+
+        .basemap-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .basemap-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .basemap-btn.active {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.25);
+        }
+
+        .basemap-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .basemap-btn i {
+            font-size: 20px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .basemap-btn span {
+            font-size: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+
+        .legend-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .legend-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .legend-item.hidden-type {
+            opacity: 0.4;
+        }
+
+        .legend-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .legend-label {
+            flex: 1;
+            color: white;
+        }
+
+        .legend-count {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #94a3b8;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .filter-group {
+            margin-bottom: 10px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 4px;
+            opacity: 0.9;
+            color: #94a3b8;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.95);
+            color: #111827;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-card {
+            background: rgba(59, 130, 246, 0.12);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .stat-card .number {
+            font-size: 22px;
+            font-weight: bold;
+            color: #93c5fd;
+        }
+
+        .stat-card .label {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .btn {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+            filter: brightness(0.9);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #1976d2 0%, #2563eb 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.96);
+            filter: brightness(0.9);
+        }
+
+        .about-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .about-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+        .toggle-btn {
+            position: fixed;
+            top: 10px;
+            right: 410px;
+            z-index: 1001;
+            background: #111827;
+            color: white;
+            border: 2px solid #3b82f6;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 12px;
+        }
+
+        .toggle-btn:hover {
+            background: #3b82f6;
+        }
+
+        .toggle-btn.collapsed {
+            right: 10px;
+        }
+
+        .north-arrow {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            z-index: 999;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .north-arrow span {
+            display: block;
+            font-size: 10px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .north-arrow i {
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: 10px;
+        }
+
+        .footer p {
+            font-size: 11px;
+            color: #93c5fd;
+        }
+
+        .footer .total {
+            font-size: 13px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 5px;
+        }
+
+        .popup-content {
+            min-width: 200px;
+        }
+
+        .popup-content h4 {
+            color: #111827;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #3b82f6;
+            font-size: 13px;
+        }
+
+        .popup-content p {
+            margin: 4px 0;
+            font-size: 11px;
+        }
+
+        .popup-content strong {
+            color: #1d4ed8;
+        }
+
+        .popup-content .type-bg1 {
+            color: #e67e22;
+            font-weight: 600;
+        }
+
+        .popup-content .type-rgp {
+            color: #9b59b6;
+            font-weight: 600;
+        }
+
+        .custom-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marker-icon {
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .user-marker {
+            background: #2196F3;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(33, 150, 243, 0.7);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            max-width: 500px;
+            width: 92%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-content h3 {
+            font-family: 'Candara, Calibri, Trebuchet MS, Arial', sans-serif;
+            color: #111827;
+            margin-bottom: 12px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-content p {
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .concepteur-nom {
+            font-family: 'Candara, Calibri, Trebuchet MS, Arial', sans-serif;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .concepteur-formation {
+            text-align: center;
+            font-size: 12px;
+            color: #2563eb;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .contact-info p {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+            font-size: 12px;
+            color: #1e293b;
+        }
+
+        .contact-info a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-info i {
+            color: #3b82f6;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body {
+                overflow: hidden;
+            }
+
+            /* Sidebar bottom sheet */
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 60vh;
+                top: auto;
+                bottom: 0;
+                right: 0;
+                border-radius: 18px 18px 0 0;
+                box-shadow: 0 -4px 25px rgba(0,0,0,0.5);
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .sidebar.collapsed {
+                transform: translateY(100%);
+            }
+
+            /* Drag handle indicator */
+            .sidebar-header::before {
+                content: '';
+                display: block;
+                width: 40px;
+                height: 4px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 2px;
+                margin: 0 auto 10px;
+            }
+
+            .sidebar-header {
+                padding: 12px 15px 10px;
+                border-radius: 18px 18px 0 0;
+            }
+
+            .sidebar-header h1 {
+                font-size: 13px;
+            }
+
+            .sidebar-header p {
+                font-size: 10px;
+            }
+
+            /* Toggle button - floating bottom-right */
+            .toggle-btn {
+                position: fixed;
+                top: auto;
+                right: 12px;
+                bottom: 12px;
+                z-index: 1001;
+                padding: 12px 16px;
+                border-radius: 28px;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                min-width: 48px;
+                min-height: 48px;
+            }
+
+            .toggle-btn.collapsed {
+                bottom: 12px;
+                right: 12px;
+            }
+
+            /* North arrow */
+            .north-arrow {
+                bottom: auto;
+                top: 12px;
+                left: 12px;
+                padding: 6px 10px;
+                z-index: 999;
+            }
+
+            .north-arrow span {
+                font-size: 9px;
+            }
+
+            .north-arrow i {
+                font-size: 16px;
+            }
+
+            /* Sections */
+            .section {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+
+            .section h3 {
+                font-size: 11px;
+                gap: 6px;
+            }
+
+            /* Search */
+            .search-box input {
+                font-size: 16px; /* Prevent iOS zoom on focus */
+                padding: 12px 14px;
+            }
+
+            .search-box button {
+                padding: 12px 14px;
+                min-width: 48px;
+                min-height: 48px;
+            }
+
+            /* Position button */
+            .position-btn {
+                padding: 12px;
+                font-size: 13px;
+                min-height: 48px;
+                border-radius: 8px;
+            }
+
+            /* Basemap buttons */
+            .basemap-btn {
+                padding: 12px 8px;
+                border-radius: 8px;
+            }
+
+            .basemap-btn i {
+                font-size: 22px;
+                margin-bottom: 4px;
+            }
+
+            .basemap-btn span {
+                font-size: 11px;
+            }
+
+            /* Legend items - touch friendly */
+            .legend-item {
+                padding: 10px 12px;
+                font-size: 13px;
+                gap: 10px;
+                min-height: 44px;
+            }
+
+            .legend-item input[type="checkbox"] {
+                width: 22px;
+                height: 22px;
+            }
+
+            .legend-icon {
+                font-size: 14px;
+            }
+
+            /* Filter selects */
+            .filter-group select {
+                font-size: 16px; /* Prevent iOS zoom */
+                padding: 12px 14px;
+                border-radius: 8px;
+                min-height: 48px;
+            }
+
+            .filter-group label {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+
+            /* Stats grid */
+            .stat-card {
+                padding: 12px 8px;
+                border-radius: 8px;
+            }
+
+            .stat-card .number {
+                font-size: 20px;
+            }
+
+            .stat-card .label {
+                font-size: 10px;
+            }
+
+            /* Action buttons - touch friendly */
+            .btn {
+                padding: 12px 10px;
+                font-size: 13px;
+                min-height: 44px;
+                border-radius: 8px;
+                gap: 6px;
+            }
+
+            .about-btn {
+                padding: 14px;
+                border-radius: 8px;
+            }
+
+            /* Footer */
+            .footer {
+                padding: 8px 10px;
+                margin-top: 8px;
+            }
+
+            .footer p {
+                font-size: 10px;
+            }
+
+            .footer .total {
+                font-size: 12px;
+            }
+
+            /* Sidebar content padding */
+            .sidebar-content {
+                padding: 8px 10px;
+            }
+
+            /* Modal - full screen on mobile */
+            .modal-content {
+                width: 96%;
+                max-width: none;
+                max-height: 90vh;
+                padding: 20px 16px;
+                border-radius: 16px 16px 0 0;
+                margin: auto 0 0 0;
+            }
+
+            .modal-overlay {
+                align-items: flex-end;
+            }
+
+            .modal-content h3 {
+                font-size: 16px;
+            }
+
+            .modal-content p {
+                font-size: 13px;
+                line-height: 1.7;
+            }
+
+            .modal-close {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+                top: 12px;
+                right: 12px;
+            }
+
+            .concepteur-nom {
+                font-size: 16px;
+            }
+
+            .concepteur-formation {
+                font-size: 12px;
+            }
+
+            .contact-info {
+                padding: 10px;
+            }
+
+            .contact-info p {
+                font-size: 12px;
+            }
+
+            /* Popup on mobile */
+            .popup-content {
+                min-width: 180px;
+                max-width: 260px;
+            }
+
+            .popup-content h4 {
+                font-size: 12px;
+            }
+
+            .popup-content p {
+                font-size: 10px;
+            }
+
+            /* Leaflet controls */
+            .leaflet-control-zoom a {
+                width: 36px !important;
+                height: 36px !important;
+                line-height: 36px !important;
+                font-size: 18px !important;
+            }
+
+            .leaflet-control-attribution {
+                font-size: 8px !important;
+                max-width: 200px;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 380px) {
+            .sidebar-header h1 {
+                font-size: 12px;
+            }
+
+            .stats-grid {
+                gap: 6px;
+            }
+
+            .stat-card .number {
+                font-size: 18px;
+            }
+
+            .legend-label {
+                font-size: 11px;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+            }
+
+            .btn {
+                font-size: 11px;
+                padding: 10px 6px;
+                gap: 4px;
+            }
+        }
+
+        /* Landscape phones */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .sidebar {
+                max-height: 75vh;
+            }
+        }
+
+        /* Tablet */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 340px;
+            }
+
+            .toggle-btn {
+                right: 350px;
+            }
+
+            .toggle-btn.collapsed {
+                right: 10px;
+            }
+        }
+
+        /* Large desktop */
+        @media (min-width: 1400px) {
+            .sidebar {
+                width: 440px;
+            }
+
+            .toggle-btn {
+                right: 450px;
+            }
+
+            .toggle-btn.collapsed {
+                right: 10px;
+            }
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+
+        .leaflet-popup-content {
+            margin: 10px;
+        }
+
+        .leaflet-control-scale {
+            margin-left: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        @media print {
+            .sidebar, .toggle-btn, .north-arrow {
+                display: none !important;
+            }
+            #map {
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i> Menu
+    </button>
+
+    <div class="north-arrow">
+        <span>N</span>
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>📍 GéoRéseau Bénin</h1>
+            <p>Cartographie Interactive — Réseau National des Points Géodésiques</p>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+        </div>
+
+        <div class="sidebar-content">
+            <!-- RECHERCHE -->
+            <div class="section">
+                <h3><i class="fas fa-search"></i> Recherche</h3>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Rechercher un point géodésique...">
+                    <button onclick="searchEstablishment()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- POSITION -->
+            <div class="section">
+                <h3><i class="fas fa-map-marker-alt"></i> Position</h3>
+                <div class="position-section">
+                    <button class="position-btn" id="btn-location" onclick="getUserLocation()">
+                        <i class="fas fa-crosshairs"></i> <span id="btn-text">Ma position</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- FOND DE CARTE -->
+            <div class="section">
+                <h3><i class="fas fa-layer-group"></i> Fond de carte</h3>
+                <div class="basemap-options">
+                    <button class="basemap-btn active" id="btn-osm" onclick="switchBasemap('osm')">
+                        <i class="fas fa-map"></i>
+                        <span>Minimal</span>
+                    </button>
+                    <button class="basemap-btn" id="btn-voyager" onclick="switchBasemap('voyager')">
+                        <i class="fas fa-road"></i>
+                        <span>Routes</span>
+                    </button>
+                    <button class="basemap-btn" id="btn-topo" onclick="switchBasemap('topo')">
+                        <i class="fas fa-mountain"></i>
+                        <span>Topo</span>
+                    </button>
+                    <button class="basemap-btn" id="btn-dark" onclick="switchBasemap('dark')">
+                        <i class="fas fa-moon"></i>
+                        <span>Sombre</span>
+                    </button>
+                    <button class="basemap-btn" id="btn-satellite" onclick="switchBasemap('satellite')">
+                        <i class="fas fa-satellite"></i>
+                        <span>Satellite</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- LÉGENDE / COUCHES -->
+            <div class="section">
+                <h3><i class="fas fa-list"></i> Légende / Couches</h3>
+                <div class="legend-item" data-type="BG1">
+                    <input type="checkbox" checked onchange="toggleType('BG1', this.checked)">
+                    <span class="legend-icon" style="color: #e67e22;"><i class="fas fa-map-pin"></i></span>
+                    <span class="legend-label">Borne Géodésique (BG1)</span>
+                    <span class="legend-count" id="count-BG1">59</span>
+                </div>
+                <div class="legend-item" data-type="RGP">
+                    <input type="checkbox" checked onchange="toggleType('RGP', this.checked)">
+                    <span class="legend-icon" style="color: #9b59b6;"><i class="fas fa-bullseye"></i></span>
+                    <span class="legend-label">Point RGP</span>
+                    <span class="legend-count" id="count-RGP">1</span>
+                </div>
+            </div>
+
+            <!-- FILTRES -->
+            <div class="section">
+                <h3><i class="fas fa-filter"></i> Filtres</h3>
+                <div class="filter-group">
+                    <label><i class="fas fa-tag"></i> Type de point</label>
+                    <select id="type-filter" onchange="applyFilters()">
+                        <option value="">Tous les types</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-cog"></i> Méthode</label>
+                    <select id="methode-filter" onchange="applyFilters()">
+                        <option value="">Toutes les méthodes</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-database"></i> Source</label>
+                    <select id="source-filter" onchange="applyFilters()">
+                        <option value="">Toutes les sources</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- STATISTIQUES -->
+            <div class="section">
+                <h3><i class="fas fa-chart-bar"></i> Statistiques</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="number" id="total-count">60</div>
+                        <div class="label">Total points</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="filtered-count">60</div>
+                        <div class="label">Affichés</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="types-count">2</div>
+                        <div class="label">Types de points</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="sources-count">1</div>
+                        <div class="label">Sources</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="section">
+                <h3><i class="fas fa-tasks"></i> Actions</h3>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="showStats()">
+                        <i class="fas fa-chart-pie"></i> Statistiques
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportGeoJSON()">
+                        <i class="fas fa-download"></i> Exporter
+                    </button>
+                    <button class="btn btn-secondary" onclick="printMap()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    <button class="btn btn-primary" onclick="exportCSV()">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- À PROPOS -->
+            <div class="section">
+                <h3><i class="fas fa-info-circle"></i> À propos</h3>
+                <button class="btn about-btn" onclick="showAbout()">
+                    <i class="fas fa-user"></i> À propos du concepteur
+                </button>
+            </div>
+
+            <div class="footer">
+                <p class="total">60 points géodésiques</p>
+                <p>© 2026 - Géoportail des Points Géodésiques du Bénin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal À propos -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAbout()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3><i class="fas fa-user"></i> À propos du concepteur</h3>
+            <div class="concepteur-nom">Géraud Finangnon AÏDOFI</div>
+            <div class="concepteur-formation">Géomatique Appliquée — SIG & Télédétection</div>
+
+            <p>Ce géoportail a été conçu et développé par <strong>Géraud Finangnon AÏDOFI</strong>, étudiant en Géomatique Appliquée au Bénin, passionné par les Systèmes d'Information Géographique (SIG), la télédétection et la valorisation des données spatiales.</p>
+
+            <p>Dans le cadre de sa formation et de ses travaux académiques, il s'est spécialisé dans la manipulation, l'analyse et la représentation des données géospatiales à l'aide d'outils tels que <strong>ArcGIS</strong> et <strong>QGIS</strong>. Il s'intéresse particulièrement à la mise en place de solutions innovantes permettant d'améliorer l'accès, la gestion et la diffusion de l'information géographique.</p>
+
+            <p>Ce géoportail dédié aux points géodésiques du Bénin s'inscrit dans une démarche de <strong>modernisation et de valorisation des données de référence</strong>, essentielles pour les travaux de topographie, de cartographie et d'aménagement du territoire.</p>
+
+            <p>À travers ce projet, l'objectif est de fournir une plateforme interactive, fiable et accessible, facilitant la consultation, l'analyse et l'exploitation des points géodésiques sur l'ensemble du territoire national.</p>
+
+            <div class="contact-info">
+                <p><i class="fab fa-whatsapp"></i> WhatsApp : +229 44 25 54 27</p>
+                <p><i class="fas fa-envelope"></i> Email : <a href="mailto:gerauadf@gmail.com">gerauadf@gmail.com</a></p>
+                <p><i class="fab fa-linkedin"></i> LinkedIn : <a href="https://www.linkedin.com/in/g%C3%A9raud-finangnon-a%C3%AFdofi-a074953aa" target="_blank">Géraud Finangnon AÏDOFI</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Statistiques -->
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeStats()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3><i class="fas fa-chart-pie"></i> Statistiques détaillées</h3>
+            <div id="stats-content"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    // html2canvas chargé uniquement quand nécessaire (impression)
+    let html2canvasLoaded = false;
+    function loadHtml2Canvas(cb) {
+        if (html2canvasLoaded) return cb();
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.onload = function() { html2canvasLoaded = true; cb(); };
+        s.onerror = function() { cb(); };
+        document.head.appendChild(s);
+    }
+    </script>
+    <script>
+        // ==================== DONNÉES DES POINTS GÉODÉSIQUES ====================
+        const geoPoints = [
+            { id: 1, nom: "RGB101", type: "BG1", methode: "GPS", source: "EXTERNE", x: 348393.0, y: 690051.0, latitude: 6.241075733752071, longitude: 1.629604005947233 },
+            { id: 2, nom: "RGB102", type: "BG1", methode: "GPS", source: "EXTERNE", x: 398553.0, y: 702978.0, latitude: 6.358990513875509, longitude: 2.082751530477678 },
+            { id: 3, nom: "RGB103", type: "BG1", methode: "GPS", source: "EXTERNE", x: 439250.0, y: 705546.0, latitude: 6.382740761527744, longitude: 2.450677352409893 },
+            { id: 4, nom: "RGB104", type: "BG1", methode: "GPS", source: "EXTERNE", x: 461766.0, y: 724327.0, latitude: 6.552806980820429, longitude: 2.654161694417049 },
+            { id: 5, nom: "RGB105", type: "BG1", methode: "GPS", source: "EXTERNE", x: 358349.0, y: 734485.0, latitude: 6.643161925413181, longitude: 1.718572733693263 },
+            { id: 6, nom: "RGB106", type: "BG1", methode: "GPS", source: "EXTERNE", x: 408498.0, y: 752240.0, latitude: 6.804726361007808, longitude: 2.171932363711297 },
+            { id: 7, nom: "RGB107", type: "BG1", methode: "GPS", source: "EXTERNE", x: 353695.0, y: 767411.0, latitude: 6.94081869995031, longitude: 1.67566406682941 },
+            { id: 8, nom: "RGB108", type: "BG1", methode: "GPS", source: "EXTERNE", x: 463076.0, y: 772022.0, latitude: 6.984256213447642, longitude: 2.665714724935659 },
+            { id: 9, nom: "RGB109", type: "BG1", methode: "GPS", source: "EXTERNE", x: 389691.0, y: 794033.0, latitude: 7.18240096965723, longitude: 2.000945099697696 },
+            { id: 10, nom: "RGB110", type: "BG1", methode: "GPS", source: "EXTERNE", x: 432340.0, y: 798065.0, latitude: 7.21955057807979, longitude: 2.387141372455392 },
+            { id: 11, nom: "RGB111", type: "BG1", methode: "GPS", source: "EXTERNE", x: 471150.0, y: 819470.0, latitude: 7.413513930990767, longitude: 2.738559258664651 },
+            { id: 12, nom: "RGB112", type: "BG1", methode: "GPS", source: "EXTERNE", x: 397696.0, y: 828619.0, latitude: 7.495371010720669, longitude: 2.072791292072317 },
+            { id: 13, nom: "RGB113", type: "BG1", methode: "GPS", source: "EXTERNE", x: 356491.0, y: 836291.0, latitude: 7.563806013779666, longitude: 1.699181244762029 },
+            { id: 14, nom: "RGB114", type: "BG1", methode: "GPS", source: "EXTERNE", x: 456631.0, y: 859360.0, latitude: 7.77423685852318, longitude: 2.606661394676518 },
+            { id: 15, nom: "RGB115", type: "BG1", methode: "GPS", source: "EXTERNE", x: 399321.0, y: 872686.0, latitude: 7.893968888681232, longitude: 2.086665430899564 },
+            { id: 16, nom: "RGB116", type: "BG1", methode: "GPS", source: "EXTERNE", x: 352219.0, y: 883701.0, latitude: 7.99242421655662, longitude: 1.65910582763834 },
+            { id: 17, nom: "RGB117", type: "BG1", methode: "GPS", source: "EXTERNE", x: 446917.0, y: 891737.0, latitude: 8.067012183026327, longitude: 2.518224955898012 },
+            { id: 18, nom: "RGB118", type: "BG1", methode: "GPS", source: "EXTERNE", x: 409966.0, y: 908062.0, latitude: 8.214132824671976, longitude: 2.182579227910746 },
+            { id: 19, nom: "RGB119", type: "BG1", methode: "GPS", source: "EXTERNE", x: 378485.0, y: 929457.0, latitude: 8.406934297207101, longitude: 1.896257255157756 },
+            { id: 20, nom: "RGB120", type: "BG1", methode: "GPS", source: "EXTERNE", x: 435861.0, y: 938875.0, latitude: 8.493238024889978, longitude: 2.417256135660435 },
+            { id: 21, nom: "RGB121", type: "BG1", methode: "GPS", source: "EXTERNE", x: 351300.0, y: 970675.0, latitude: 8.778888649982086, longitude: 1.648051366407762 },
+            { id: 22, nom: "RGB122", type: "BG1", methode: "GPS", source: "EXTERNE", x: 456254.0, y: 981863.0, latitude: 8.882301141806678, longitude: 2.60212553614411 },
+            { id: 23, nom: "RGB123", type: "BG1", methode: "GPS", source: "EXTERNE", x: 385948.0, y: 994186.0, latitude: 8.992517141709984, longitude: 1.96243203049488 },
+            { id: 24, nom: "RGB124", type: "BG1", methode: "GPS", source: "EXTERNE", x: 420409.0, y: 1017270.0, latitude: 9.202002513614193, longitude: 2.275487944583081 },
+            { id: 25, nom: "RGB125", type: "BG1", methode: "GPS", source: "EXTERNE", x: 340880.0, y: 1022170.0, latitude: 9.244165603141159, longitude: 1.551485641547566 },
+            { id: 26, nom: "RGB126", type: "BG1", methode: "GPS", source: "EXTERNE", x: 457394.0, y: 1034290.0, latitude: 9.356513721925715, longitude: 2.611984083087078 },
+            { id: 27, nom: "RGB127", type: "BG1", methode: "GPS", source: "EXTERNE", x: 388769.0, y: 1050100.0, latitude: 9.498275427793125, longitude: 1.986641327975443 },
+            { id: 28, nom: "RGB128", type: "BG1", methode: "GPS", source: "EXTERNE", x: 494216.0, y: 1057130.0, latitude: 9.563330763917575, longitude: 2.947295563614852 },
+            { id: 29, nom: "RGB129", type: "BG1", methode: "GPS", source: "EXTERNE", x: 354658.0, y: 1073440.0, latitude: 9.708282766800387, longitude: 1.67510525527148 },
+            { id: 30, nom: "RGB130", type: "BG1", methode: "GPS", source: "EXTERNE", x: 420818.0, y: 1079940.0, latitude: 9.768817130442638, longitude: 2.278027780303027 },
+            { id: 31, nom: "RGB131", type: "BG1", methode: "GPS", source: "EXTERNE", x: 469174.0, y: 1089380.0, latitude: 9.854854780771454, longitude: 2.718850886136523 },
+            { id: 32, nom: "RGB132", type: "BG1", methode: "GPS", source: "EXTERNE", x: 522975.0, y: 1098020.0, latitude: 9.933078569421756, longitude: 3.209591767049795 },
+            { id: 33, nom: "RGB133", type: "BG1", methode: "GPS", source: "EXTERNE", x: 338679.0, y: 1105110.0, latitude: 9.99401549729769, longitude: 1.528214024981164 },
+            { id: 34, nom: "RGB134", type: "BG1", methode: "GPS", source: "EXTERNE", x: 432824.0, y: 1124840.0, latitude: 10.17515871935464, longitude: 2.386731686242104 },
+            { id: 35, nom: "RGB135", type: "BG1", methode: "GPS", source: "EXTERNE", x: 390499.0, y: 1130990.0, latitude: 10.229814121794377, longitude: 2.000199566413529 },
+            { id: 36, nom: "RGB136", type: "BG1", methode: "GPS", source: "EXTERNE", x: 500935.0, y: 1124630.0, latitude: 10.173809416230437, longitude: 3.008535943998288 },
+            { id: 37, nom: "RGB137", type: "BG1", methode: "GPS", source: "EXTERNE", x: 322477.0, y: 1141320.0, latitude: 10.320663319846648, longitude: 1.378787094020405 },
+            { id: 38, nom: "RGB138", type: "BG1", methode: "GPS", source: "EXTERNE", x: 541479.0, y: 1137310.0, latitude: 10.288294330416868, longitude: 3.378810553222673 },
+            { id: 39, nom: "RGB139", type: "BG1", methode: "GPS", source: "EXTERNE", x: 258564.0, y: 1152310.0, latitude: 10.416550005264602, longitude: 0.794670727998352 },
+            { id: 40, nom: "RGB140", type: "BG1", methode: "GPS", source: "EXTERNE", x: 475756.0, y: 1158960.0, latitude: 10.484247419764895, longitude: 2.77845026412682 },
+            { id: 41, nom: "RGB141", type: "BG1", methode: "GPS", source: "EXTERNE", x: 361025.0, y: 1168790.0, latitude: 10.57068158375645, longitude: 1.729748255507573 },
+            { id: 42, nom: "RGB143", type: "BG1", methode: "GPS", source: "EXTERNE", x: 303556.0, y: 1186840.0, latitude: 10.731273019212875, longitude: 1.203665835713415 },
+            { id: 43, nom: "RGB144", type: "BG1", methode: "GPS", source: "EXTERNE", x: 514593.0, y: 1184480.0, latitude: 10.715089607939468, longitude: 3.133456180174098 },
+            { id: 44, nom: "RGB145", type: "BG1", methode: "GPS", source: "EXTERNE", x: 403007.0, y: 1196700.0, latitude: 10.824368886436096, longitude: 2.112699836472227 },
+            { id: 45, nom: "RGB146", type: "BG1", methode: "GPS", source: "EXTERNE", x: 470345.0, y: 1195550.0, latitude: 10.815138507893272, longitude: 2.728710933475818 },
+            { id: 46, nom: "RGB147", type: "BG1", methode: "GPS", source: "EXTERNE", x: 550022.0, y: 1209950.0, latitude: 10.945098899909238, longitude: 3.457803544603202 },
+            { id: 47, nom: "RGB148", type: "BG1", methode: "GPS", source: "EXTERNE", x: 334691.0, y: 1205480.0, latitude: 10.901350094729173, longitude: 1.487452641972125 },
+            { id: 48, nom: "RGB149", type: "BG1", methode: "GPS", source: "EXTERNE", x: 278256.0, y: 1221200.0, latitude: 11.040439608646386, longitude: 0.970309758507689 },
+            { id: 49, nom: "RGB150", type: "BG1", methode: "GPS", source: "EXTERNE", x: 382146.0, y: 1223520.0, latitude: 11.06625537771521, longitude: 1.92100422790102 },
+            { id: 50, nom: "RGB151", type: "BG1", methode: "GPS", source: "EXTERNE", x: 494047.0, y: 1232270.0, latitude: 11.147366452657272, longitude: 2.945475952406583 },
+            { id: 51, nom: "RGB152", type: "BG1", methode: "GPS", source: "EXTERNE", x: 432847.0, y: 1243150.0, latitude: 11.245097794510521, longitude: 2.384790655897738 },
+            { id: 52, nom: "RGB153", type: "BG1", methode: "GPS", source: "EXTERNE", x: 345496.0, y: 1261690.0, latitude: 11.409941013723772, longitude: 1.583833827528955 },
+            { id: 53, nom: "RGB154", type: "BG1", methode: "GPS", source: "EXTERNE", x: 551932.0, y: 1265160.0, latitude: 11.444436844299736, longitude: 3.476097897576389 },
+            { id: 54, nom: "RGB155", type: "BG1", methode: "GPS", source: "EXTERNE", x: 400526.0, y: 1269030.0, latitude: 11.478394869118818, longitude: 2.087967319368781 },
+            { id: 55, nom: "RGB156", type: "BG1", methode: "GPS", source: "EXTERNE", x: 513666.0, y: 1278240.0, latitude: 11.563046888901653, longitude: 3.12533995863265 },
+            { id: 56, nom: "RGB157", type: "BG1", methode: "GPS", source: "EXTERNE", x: 448009.0, y: 1276710.0, latitude: 11.548802886278832, longitude: 2.523183457989091 },
+            { id: 57, nom: "RGB159", type: "BG1", methode: "GPS", source: "EXTERNE", x: 477599.0, y: 1303320.0, latitude: 11.789831233545426, longitude: 2.794377783724539 },
+            { id: 58, nom: "RGB160", type: "BG1", methode: "GPS", source: "EXTERNE", x: 503794.0, y: 1349150.0, latitude: 12.204331819836026, longitude: 3.034878652687025 },
+            { id: 59, nom: "RGB158", type: "RGP", methode: "GPS", source: "EXTERNE", x: null, y: null, latitude: 11.840150154155831, longitude: 3.35591006145365 }
+        ];
+
+        // ==================== CONFIGURATION ====================
+        const typeConfig = {
+            "BG1": { color: "#e67e22", icon: "fa-map-pin", label: "Borne Géodésique (BG1)" },
+            "RGP": { color: "#9b59b6", icon: "fa-bullseye", label: "Point RGP" }
+        };
+
+        let visibleTypes = new Set(["BG1", "RGP"]);
+        let userLocationMarker = null;
+
+        // ==================== CACHE ICÔNES (performance) ====================
+        const iconCache = {};
+        function getIcon(type) {
+            if (iconCache[type]) return iconCache[type];
+            const c = typeConfig[type] || { color: "#607d8b", icon: "fa-map-pin" };
+            iconCache[type] = L.divIcon({
+                className: 'custom-marker',
+                html: '<div class="marker-icon" style="color:' + c.color + ';"><i class="fas ' + c.icon + '"></i></div>',
+                iconSize: [18, 18],
+                iconAnchor: [9, 9],
+                popupAnchor: [0, -9]
+            });
+            return iconCache[type];
+        }
+
+        // ==================== CACHE POPUPS (performance) ====================
+        const popupCache = new Map();
+        function getPopup(point) {
+            if (popupCache.has(point.id)) return popupCache.get(point.id);
+            const tc = point.type === 'BG1' ? 'type-bg1' : 'type-rgp';
+            const xV = point.x !== null ? point.x.toLocaleString('fr-FR') : 'N/A';
+            const yV = point.y !== null ? point.y.toLocaleString('fr-FR') : 'N/A';
+            const cfg = typeConfig[point.type];
+            const html = '<div class="popup-content"><h4>' + point.nom + '</h4>' +
+                '<p><strong>Type:</strong> <span class="' + tc + '">' + (cfg ? cfg.label : point.type) + '</span></p>' +
+                '<p><strong>Méthode:</strong> ' + point.methode + '</p>' +
+                '<p><strong>Source:</strong> ' + point.source + '</p>' +
+                '<p><strong>X (UTM):</strong> ' + xV + '</p>' +
+                '<p><strong>Y (UTM):</strong> ' + yV + '</p>' +
+                '<p><strong>Latitude:</strong> ' + point.latitude.toFixed(6) + '</p>' +
+                '<p><strong>Longitude:</strong> ' + point.longitude.toFixed(6) + '</p></div>';
+            popupCache.set(point.id, html);
+            return html;
+        }
+
+        // ==================== INITIALISATION CARTE OPTIMISÉE ====================
+        const map = L.map('map', {
+            zoomControl: true,
+            preferCanvas: true,
+            zoomSnap: 0.5,
+            zoomDelta: 1,
+            wheelPxPerZoomLevel: 100,
+            maxBoundsViscosity: 0.8
+        }).setView([9.5, 2.3], 7);
+
+        const osmLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> &copy; <a href="https://carto.com/" target="_blank">CARTO</a>',
+            maxZoom: 19, maxNativeZoom: 19,
+            subdomains: 'abcd',
+            keepBuffer: 1,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            loadTilesWhileAnimating: false,
+            crossOrigin: 'anonymous'
+        });
+
+        const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> &copy; <a href="https://carto.com/" target="_blank">CARTO</a>',
+            maxZoom: 19, maxNativeZoom: 19,
+            subdomains: 'abcd',
+            keepBuffer: 1,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            loadTilesWhileAnimating: false,
+            crossOrigin: 'anonymous'
+        });
+
+        const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://opentopomap.org" target="_blank">OpenTopoMap</a> (CC-BY-SA)',
+            maxZoom: 17, maxNativeZoom: 17,
+            subdomains: 'abc',
+            keepBuffer: 1,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            loadTilesWhileAnimating: false,
+            crossOrigin: 'anonymous',
+            detectRetina: false
+        });
+
+        const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> &copy; <a href="https://carto.com/" target="_blank">CARTO</a>',
+            maxZoom: 19, maxNativeZoom: 19,
+            subdomains: 'abcd',
+            keepBuffer: 1,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            loadTilesWhileAnimating: false,
+            crossOrigin: 'anonymous'
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; <a href="https://www.esri.com" target="_blank">Esri</a>',
+            maxZoom: 19, maxNativeZoom: 19,
+            keepBuffer: 1,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            loadTilesWhileAnimating: false,
+            crossOrigin: 'anonymous'
+        });
+
+        osmLayer.addTo(map);
+
+        // Préchargement des fonds de carte en arrière-plan après 3s
+        setTimeout(function() {
+            var preload = [voyagerLayer, topoLayer, darkLayer, satelliteLayer];
+            preload.forEach(function(layer) {
+                if (!map.hasLayer(layer)) {
+                    map.addLayer(layer);
+                    map.removeLayer(layer);
+                }
+            });
+        }, 3000);
+
+        L.control.scale({
+            position: 'bottomleft',
+            imperial: false,
+            maxWidth: 200
+        }).addTo(map);
+
+        const markersLayer = L.layerGroup().addTo(map);
+
+        // ==================== FONCTIONS OPTIMISÉES ====================
+
+        function addMarkers(points) {
+            markersLayer.clearLayers();
+
+            for (let i = 0, len = points.length; i < len; i++) {
+                const point = points[i];
+                if (!visibleTypes.has(point.type)) continue;
+
+                const marker = L.marker([point.latitude, point.longitude], {
+                    icon: getIcon(point.type),
+                    riseOnHover: true
+                });
+
+                marker.bindPopup(getPopup(point), { maxWidth: 260, closeButton: true });
+                markersLayer.addLayer(marker);
+            }
+
+            let visible = 0;
+            for (let i = 0; i < points.length; i++) {
+                if (visibleTypes.has(points[i].type)) visible++;
+            }
+            document.getElementById('filtered-count').textContent = visible;
+        }
+
+        function toggleType(type, visible) {
+            if (visible) {
+                visibleTypes.add(type);
+            } else {
+                visibleTypes.delete(type);
+            }
+            
+            const legendItem = document.querySelector('.legend-item[data-type="' + type + '"]');
+            if (legendItem) {
+                legendItem.classList.toggle('hidden-type', !visible);
+            }
+            
+            applyFilters();
+        }
+
+        function initFilters() {
+            const typeSelect = document.getElementById('type-filter');
+            const methodeSelect = document.getElementById('methode-filter');
+            const sourceSelect = document.getElementById('source-filter');
+            
+            Object.keys(typeConfig).forEach(function(type) {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = typeConfig[type].label;
+                typeSelect.appendChild(option);
+            });
+
+            // Méthodes uniques
+            const methodes = [...new Set(geoPoints.map(function(p) { return p.methode; }))].sort();
+            methodes.forEach(function(m) {
+                const option = document.createElement('option');
+                option.value = m;
+                option.textContent = m;
+                methodeSelect.appendChild(option);
+            });
+
+            // Sources uniques
+            const sources = [...new Set(geoPoints.map(function(p) { return p.source; }))].sort();
+            sources.forEach(function(s) {
+                const option = document.createElement('option');
+                option.value = s;
+                option.textContent = s;
+                sourceSelect.appendChild(option);
+            });
+
+            updateLegendCounts();
+            updateStatCards();
+        }
+
+        function updateLegendCounts() {
+            const counts = {};
+            geoPoints.forEach(function(p) {
+                if (!counts[p.type]) counts[p.type] = 0;
+                counts[p.type]++;
+            });
+            
+            Object.keys(counts).forEach(function(type) {
+                const countEl = document.getElementById('count-' + type);
+                if (countEl) {
+                    countEl.textContent = counts[type];
+                }
+            });
+        }
+
+        function updateStatCards() {
+            document.getElementById('total-count').textContent = geoPoints.length;
+            document.getElementById('filtered-count').textContent = geoPoints.length;
+            document.getElementById('types-count').textContent = Object.keys(typeConfig).length;
+            document.getElementById('sources-count').textContent = [...new Set(geoPoints.map(function(p) { return p.source; }))].length;
+        }
+
+        function applyFilters() {
+            const typeFilter = document.getElementById('type-filter').value;
+            const methodeFilter = document.getElementById('methode-filter').value;
+            const sourceFilter = document.getElementById('source-filter').value;
+
+            let filtered = geoPoints;
+
+            if (typeFilter) {
+                filtered = filtered.filter(function(p) { return p.type === typeFilter; });
+            }
+
+            if (methodeFilter) {
+                filtered = filtered.filter(function(p) { return p.methode === methodeFilter; });
+            }
+
+            if (sourceFilter) {
+                filtered = filtered.filter(function(p) { return p.source === sourceFilter; });
+            }
+
+            addMarkers(filtered);
+
+            if (filtered.length > 0) {
+                const bounds = L.latLngBounds(filtered.map(function(p) { return [p.latitude, p.longitude]; }));
+                map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 0.3 });
+            }
+        }
+
+        // ==================== RECHERCHE AVEC DEBOUNCE ====================
+        let searchTimer = null;
+        function searchEstablishment() {
+            const searchInput = document.getElementById('search-input');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                addMarkers(geoPoints);
+                document.getElementById('filtered-count').textContent = geoPoints.length;
+                map.setView([9.5, 2.3], 7, { animate: true, duration: 0.3 });
+                return;
+            }
+            
+            const filtered = geoPoints.filter(function(p) { 
+                return p.nom.toLowerCase().indexOf(searchTerm) !== -1 ||
+                       p.type.toLowerCase().indexOf(searchTerm) !== -1 ||
+                       p.methode.toLowerCase().indexOf(searchTerm) !== -1 ||
+                       p.source.toLowerCase().indexOf(searchTerm) !== -1;
+            });
+            
+            addMarkers(filtered);
+            document.getElementById('filtered-count').textContent = filtered.length;
+            
+            if (filtered.length > 0) {
+                const bounds = L.latLngBounds(filtered.map(function(p) { return [p.latitude, p.longitude]; }));
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14, animate: true, duration: 0.3 });
+            } else {
+                alert('Aucun point géodésique trouvé pour: "' + searchTerm + '"');
+                addMarkers(geoPoints);
+                document.getElementById('filtered-count').textContent = geoPoints.length;
+                map.setView([9.5, 2.3], 7, { animate: true, duration: 0.3 });
+            }
+        }
+
+        // Recherche avec Entrée + debounce live
+        document.getElementById('search-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimer);
+                searchEstablishment();
+            }
+        });
+        document.getElementById('search-input').addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(searchEstablishment, 300);
+        });
+
+        const allLayers = { osm: osmLayer, voyager: voyagerLayer, topo: topoLayer, dark: darkLayer, satellite: satelliteLayer };
+        const allBtns = ['btn-osm', 'btn-voyager', 'btn-topo', 'btn-dark', 'btn-satellite'];
+
+        function switchBasemap(type) {
+            Object.keys(allLayers).forEach(function(key) {
+                if (key !== type) map.removeLayer(allLayers[key]);
+            });
+            map.addLayer(allLayers[type]);
+            allBtns.forEach(function(id) { document.getElementById(id).classList.remove('active'); });
+            document.getElementById('btn-' + type).classList.add('active');
+        }
+
+        function getUserLocation() {
+            const btn = document.getElementById('btn-location');
+            const btnText = document.getElementById('btn-text');
+            
+            if (!navigator.geolocation) {
+                alert('Votre navigateur ne supporte pas la géolocalisation.');
+                return;
+            }
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btnText.textContent = 'Localisation...';
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    if (userLocationMarker !== null) {
+                        map.removeLayer(userLocationMarker);
+                    }
+
+                    map.setView([lat, lng], 15);
+
+                    const userIcon = L.divIcon({
+                        className: 'user-location-icon',
+                        html: '<div class="user-marker"></div>',
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                    });
+
+                    userLocationMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
+                    userLocationMarker.bindPopup('<strong>Ma Position</strong>').openPopup();
+
+                    btn.classList.remove('loading');
+                    btn.classList.add('success');
+                    btnText.textContent = 'Trouvé';
+                    btn.disabled = false;
+
+                    setTimeout(function() {
+                        btn.classList.remove('success');
+                        btnText.textContent = 'Ma position';
+                    }, 3000);
+                },
+                function(error) {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                    btnText.textContent = 'Ma position';
+
+                    if (error.code === error.PERMISSION_DENIED) {
+                        alert('Autorisation refusée. Veuillez autoriser la géolocalisation dans votre navigateur.');
+                    } else {
+                        alert('Impossible de récupérer votre position.');
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+            );
+        }
+
+        function exportGeoJSON() {
+            const geojson = {
+                type: "FeatureCollection",
+                name: "Bornegodsique_3",
+                crs: { type: "name", properties: { name: "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+                features: geoPoints.map(function(p) {
+                    return {
+                        type: "Feature",
+                        properties: { 
+                            Type: p.type, 
+                            Methode: p.methode, 
+                            X: p.x, 
+                            Y: p.y, 
+                            Source: p.source, 
+                            Nom_BOR: p.nom 
+                        },
+                        geometry: { type: "Point", coordinates: [p.longitude, p.latitude] }
+                    };
+                })
+            };
+            const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+            downloadFile(blob, 'points_geodesiques_benin.geojson');
+        }
+
+        function exportCSV() {
+            const headers = ['ID', 'Nom_BOR', 'Type', 'Methode', 'X', 'Y', 'Source', 'Latitude', 'Longitude'];
+            const rows = geoPoints.map(function(p) {
+                return [p.id, p.nom, typeConfig[p.type] ? typeConfig[p.type].label : p.type, p.methode, p.x, p.y, p.source, p.latitude, p.longitude];
+            });
+            let csv = headers.join(',') + '\n';
+            rows.forEach(function(row) { csv += row.map(function(c) { return '"' + c + '"'; }).join(',') + '\n'; });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            downloadFile(blob, 'points_geodesiques_benin.csv');
+        }
+
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            sidebar.classList.toggle('collapsed');
+            toggleBtn.classList.toggle('collapsed');
+        }
+
+        function showStats() {
+            const stats = {};
+            geoPoints.forEach(function(p) {
+                if (!stats[p.type]) stats[p.type] = 0;
+                stats[p.type]++;
+            });
+            let html = '<div style="display: grid; gap: 8px;">';
+            Object.entries(stats).sort(function(a, b) { return b[1] - a[1]; }).forEach(function(entry) {
+                const config = typeConfig[entry[0]] || { color: "#607d8b", icon: "fa-map-pin", label: entry[0] };
+                html += '<div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: #f5f5f5; border-radius: 5px;">' +
+                    '<i class="fas ' + config.icon + '" style="color: ' + config.color + ';"></i>' +
+                    '<span style="flex: 1;">' + config.label + '</span>' +
+                    '<strong style="color: #111827;">' + entry[1] + '</strong></div>';
+            });
+
+            // Méthode stats
+            html += '<div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #ddd;"><strong style="color: #111827; font-size: 12px;">Répartition par Méthode:</strong></div>';
+            const methodeStats = {};
+            geoPoints.forEach(function(p) {
+                if (!methodeStats[p.methode]) methodeStats[p.methode] = 0;
+                methodeStats[p.methode]++;
+            });
+            Object.entries(methodeStats).forEach(function(entry) {
+                html += '<div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: #f5f5f5; border-radius: 5px;">' +
+                    '<i class="fas fa-cog" style="color: #2196f3;"></i>' +
+                    '<span style="flex: 1;">' + entry[0] + '</span>' +
+                    '<strong style="color: #111827;">' + entry[1] + '</strong></div>';
+            });
+
+            // Source stats
+            html += '<div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #ddd;"><strong style="color: #111827; font-size: 12px;">Répartition par Source:</strong></div>';
+            const sourceStats = {};
+            geoPoints.forEach(function(p) {
+                if (!sourceStats[p.source]) sourceStats[p.source] = 0;
+                sourceStats[p.source]++;
+            });
+            Object.entries(sourceStats).forEach(function(entry) {
+                html += '<div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: #f5f5f5; border-radius: 5px;">' +
+                    '<i class="fas fa-database" style="color: #ff9800;"></i>' +
+                    '<span style="flex: 1;">' + entry[0] + '</span>' +
+                    '<strong style="color: #111827;">' + entry[1] + '</strong></div>';
+            });
+
+            html += '</div>';
+            document.getElementById('stats-content').innerHTML = html;
+            document.getElementById('statsModal').classList.add('active');
+        }
+
+        function closeStats() { document.getElementById('statsModal').classList.remove('active'); }
+        function showAbout() { document.getElementById('aboutModal').classList.add('active'); }
+        function closeAbout() { document.getElementById('aboutModal').classList.remove('active'); }
+
+        function printMap() {
+            var sidebar = document.getElementById('sidebar');
+            var toggleBtn = document.querySelector('.toggle-btn');
+            var northArrow = document.querySelector('.north-arrow');
+            
+            sidebar.style.display = 'none';
+            toggleBtn.style.display = 'none';
+            northArrow.style.display = 'none';
+            
+            map.invalidateSize();
+            
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                loadHtml2Canvas(function() {
+                    try {
+                        var mapElement = document.getElementById('map');
+                        html2canvas(mapElement, {
+                            useCORS: true,
+                            allowTaint: true,
+                            scale: 2,
+                            logging: false
+                        }).then(function(canvas) {
+                            var link = document.createElement('a');
+                            link.download = 'points_geodesiques_benin.png';
+                            link.href = canvas.toDataURL();
+                            link.click();
+                            restoreUI(sidebar, toggleBtn, northArrow);
+                        }).catch(function(err) {
+                            alert('Erreur lors de la capture: ' + err.message);
+                            restoreUI(sidebar, toggleBtn, northArrow);
+                        });
+                    } catch(e) {
+                        alert('Erreur: ' + e.message);
+                        restoreUI(sidebar, toggleBtn, northArrow);
+                    }
+                });
+            } else {
+                window.print();
+                setTimeout(function() {
+                    restoreUI(sidebar, toggleBtn, northArrow);
+                }, 300);
+            }
+        }
+        
+        function restoreUI(sidebar, toggleBtn, northArrow) {
+            sidebar.style.display = '';
+            toggleBtn.style.display = '';
+            northArrow.style.display = '';
+            map.invalidateSize();
+        }
+
+        // ==================== INITIALISATION ====================
+        initFilters();
+        addMarkers(geoPoints);
+
+        const allBounds = L.latLngBounds(geoPoints.map(function(p) { return [p.latitude, p.longitude]; }));
+        map.fitBounds(allBounds, { padding: [50, 50] });
+    </script>
+</body>
+</html>
