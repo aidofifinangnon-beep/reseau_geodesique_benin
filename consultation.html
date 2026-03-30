@@ -1093,7 +1093,26 @@
 
             <!-- FILTRES -->
             <div class="section">
-                <h3><i class="fas fa-filter"></i> Filtres</h3>
+                <h3><i class="fas fa-filter"></i> Filtres administratifs</h3>
+                <div class="filter-group">
+                    <label><i class="fas fa-map"></i> Département</label>
+                    <select id="departement-filter" onchange="onDepartementChange()">
+                        <option value="">Tous les départements</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-city"></i> Commune</label>
+                    <select id="commune-filter" onchange="applyFilters()">
+                        <option value="">Toutes les communes</option>
+                    </select>
+                </div>
+                <div style="text-align:center;margin:8px 0 4px;">
+                    <button class="btn btn-secondary" onclick="resetAdminFilters()" style="font-size:11px;padding:6px 14px;border-radius:20px;display:inline-flex;gap:5px;">
+                        <i class="fas fa-times"></i> Réinitialiser
+                    </button>
+                </div>
+                <div style="height:1px;background:rgba(255,255,255,0.15);margin:8px 0;"></div>
+                <h3 style="margin-top:8px;"><i class="fas fa-sliders-h"></i> Filtres avancés</h3>
                 <div class="filter-group">
                     <label><i class="fas fa-tag"></i> Type de point</label>
                     <select id="type-filter" onchange="applyFilters()">
@@ -1224,65 +1243,65 @@
     <script>
         // ==================== DONNÉES DES POINTS GÉODÉSIQUES ====================
         const geoPoints = [
-            { id: 1, nom: "RGB101", type: "BG1", methode: "GPS", source: "EXTERNE", x: 348393.0, y: 690051.0, latitude: 6.241075733752071, longitude: 1.629604005947233 },
-            { id: 2, nom: "RGB102", type: "BG1", methode: "GPS", source: "EXTERNE", x: 398553.0, y: 702978.0, latitude: 6.358990513875509, longitude: 2.082751530477678 },
-            { id: 3, nom: "RGB103", type: "BG1", methode: "GPS", source: "EXTERNE", x: 439250.0, y: 705546.0, latitude: 6.382740761527744, longitude: 2.450677352409893 },
-            { id: 4, nom: "RGB104", type: "BG1", methode: "GPS", source: "EXTERNE", x: 461766.0, y: 724327.0, latitude: 6.552806980820429, longitude: 2.654161694417049 },
-            { id: 5, nom: "RGB105", type: "BG1", methode: "GPS", source: "EXTERNE", x: 358349.0, y: 734485.0, latitude: 6.643161925413181, longitude: 1.718572733693263 },
-            { id: 6, nom: "RGB106", type: "BG1", methode: "GPS", source: "EXTERNE", x: 408498.0, y: 752240.0, latitude: 6.804726361007808, longitude: 2.171932363711297 },
-            { id: 7, nom: "RGB107", type: "BG1", methode: "GPS", source: "EXTERNE", x: 353695.0, y: 767411.0, latitude: 6.94081869995031, longitude: 1.67566406682941 },
-            { id: 8, nom: "RGB108", type: "BG1", methode: "GPS", source: "EXTERNE", x: 463076.0, y: 772022.0, latitude: 6.984256213447642, longitude: 2.665714724935659 },
-            { id: 9, nom: "RGB109", type: "BG1", methode: "GPS", source: "EXTERNE", x: 389691.0, y: 794033.0, latitude: 7.18240096965723, longitude: 2.000945099697696 },
-            { id: 10, nom: "RGB110", type: "BG1", methode: "GPS", source: "EXTERNE", x: 432340.0, y: 798065.0, latitude: 7.21955057807979, longitude: 2.387141372455392 },
-            { id: 11, nom: "RGB111", type: "BG1", methode: "GPS", source: "EXTERNE", x: 471150.0, y: 819470.0, latitude: 7.413513930990767, longitude: 2.738559258664651 },
-            { id: 12, nom: "RGB112", type: "BG1", methode: "GPS", source: "EXTERNE", x: 397696.0, y: 828619.0, latitude: 7.495371010720669, longitude: 2.072791292072317 },
-            { id: 13, nom: "RGB113", type: "BG1", methode: "GPS", source: "EXTERNE", x: 356491.0, y: 836291.0, latitude: 7.563806013779666, longitude: 1.699181244762029 },
-            { id: 14, nom: "RGB114", type: "BG1", methode: "GPS", source: "EXTERNE", x: 456631.0, y: 859360.0, latitude: 7.77423685852318, longitude: 2.606661394676518 },
-            { id: 15, nom: "RGB115", type: "BG1", methode: "GPS", source: "EXTERNE", x: 399321.0, y: 872686.0, latitude: 7.893968888681232, longitude: 2.086665430899564 },
-            { id: 16, nom: "RGB116", type: "BG1", methode: "GPS", source: "EXTERNE", x: 352219.0, y: 883701.0, latitude: 7.99242421655662, longitude: 1.65910582763834 },
-            { id: 17, nom: "RGB117", type: "BG1", methode: "GPS", source: "EXTERNE", x: 446917.0, y: 891737.0, latitude: 8.067012183026327, longitude: 2.518224955898012 },
-            { id: 18, nom: "RGB118", type: "BG1", methode: "GPS", source: "EXTERNE", x: 409966.0, y: 908062.0, latitude: 8.214132824671976, longitude: 2.182579227910746 },
-            { id: 19, nom: "RGB119", type: "BG1", methode: "GPS", source: "EXTERNE", x: 378485.0, y: 929457.0, latitude: 8.406934297207101, longitude: 1.896257255157756 },
-            { id: 20, nom: "RGB120", type: "BG1", methode: "GPS", source: "EXTERNE", x: 435861.0, y: 938875.0, latitude: 8.493238024889978, longitude: 2.417256135660435 },
-            { id: 21, nom: "RGB121", type: "BG1", methode: "GPS", source: "EXTERNE", x: 351300.0, y: 970675.0, latitude: 8.778888649982086, longitude: 1.648051366407762 },
-            { id: 22, nom: "RGB122", type: "BG1", methode: "GPS", source: "EXTERNE", x: 456254.0, y: 981863.0, latitude: 8.882301141806678, longitude: 2.60212553614411 },
-            { id: 23, nom: "RGB123", type: "BG1", methode: "GPS", source: "EXTERNE", x: 385948.0, y: 994186.0, latitude: 8.992517141709984, longitude: 1.96243203049488 },
-            { id: 24, nom: "RGB124", type: "BG1", methode: "GPS", source: "EXTERNE", x: 420409.0, y: 1017270.0, latitude: 9.202002513614193, longitude: 2.275487944583081 },
-            { id: 25, nom: "RGB125", type: "BG1", methode: "GPS", source: "EXTERNE", x: 340880.0, y: 1022170.0, latitude: 9.244165603141159, longitude: 1.551485641547566 },
-            { id: 26, nom: "RGB126", type: "BG1", methode: "GPS", source: "EXTERNE", x: 457394.0, y: 1034290.0, latitude: 9.356513721925715, longitude: 2.611984083087078 },
-            { id: 27, nom: "RGB127", type: "BG1", methode: "GPS", source: "EXTERNE", x: 388769.0, y: 1050100.0, latitude: 9.498275427793125, longitude: 1.986641327975443 },
-            { id: 28, nom: "RGB128", type: "BG1", methode: "GPS", source: "EXTERNE", x: 494216.0, y: 1057130.0, latitude: 9.563330763917575, longitude: 2.947295563614852 },
-            { id: 29, nom: "RGB129", type: "BG1", methode: "GPS", source: "EXTERNE", x: 354658.0, y: 1073440.0, latitude: 9.708282766800387, longitude: 1.67510525527148 },
-            { id: 30, nom: "RGB130", type: "BG1", methode: "GPS", source: "EXTERNE", x: 420818.0, y: 1079940.0, latitude: 9.768817130442638, longitude: 2.278027780303027 },
-            { id: 31, nom: "RGB131", type: "BG1", methode: "GPS", source: "EXTERNE", x: 469174.0, y: 1089380.0, latitude: 9.854854780771454, longitude: 2.718850886136523 },
-            { id: 32, nom: "RGB132", type: "BG1", methode: "GPS", source: "EXTERNE", x: 522975.0, y: 1098020.0, latitude: 9.933078569421756, longitude: 3.209591767049795 },
-            { id: 33, nom: "RGB133", type: "BG1", methode: "GPS", source: "EXTERNE", x: 338679.0, y: 1105110.0, latitude: 9.99401549729769, longitude: 1.528214024981164 },
-            { id: 34, nom: "RGB134", type: "BG1", methode: "GPS", source: "EXTERNE", x: 432824.0, y: 1124840.0, latitude: 10.17515871935464, longitude: 2.386731686242104 },
-            { id: 35, nom: "RGB135", type: "BG1", methode: "GPS", source: "EXTERNE", x: 390499.0, y: 1130990.0, latitude: 10.229814121794377, longitude: 2.000199566413529 },
-            { id: 36, nom: "RGB136", type: "BG1", methode: "GPS", source: "EXTERNE", x: 500935.0, y: 1124630.0, latitude: 10.173809416230437, longitude: 3.008535943998288 },
-            { id: 37, nom: "RGB137", type: "BG1", methode: "GPS", source: "EXTERNE", x: 322477.0, y: 1141320.0, latitude: 10.320663319846648, longitude: 1.378787094020405 },
-            { id: 38, nom: "RGB138", type: "BG1", methode: "GPS", source: "EXTERNE", x: 541479.0, y: 1137310.0, latitude: 10.288294330416868, longitude: 3.378810553222673 },
-            { id: 39, nom: "RGB139", type: "BG1", methode: "GPS", source: "EXTERNE", x: 258564.0, y: 1152310.0, latitude: 10.416550005264602, longitude: 0.794670727998352 },
-            { id: 40, nom: "RGB140", type: "BG1", methode: "GPS", source: "EXTERNE", x: 475756.0, y: 1158960.0, latitude: 10.484247419764895, longitude: 2.77845026412682 },
-            { id: 41, nom: "RGB141", type: "BG1", methode: "GPS", source: "EXTERNE", x: 361025.0, y: 1168790.0, latitude: 10.57068158375645, longitude: 1.729748255507573 },
-            { id: 42, nom: "RGB143", type: "BG1", methode: "GPS", source: "EXTERNE", x: 303556.0, y: 1186840.0, latitude: 10.731273019212875, longitude: 1.203665835713415 },
-            { id: 43, nom: "RGB144", type: "BG1", methode: "GPS", source: "EXTERNE", x: 514593.0, y: 1184480.0, latitude: 10.715089607939468, longitude: 3.133456180174098 },
-            { id: 44, nom: "RGB145", type: "BG1", methode: "GPS", source: "EXTERNE", x: 403007.0, y: 1196700.0, latitude: 10.824368886436096, longitude: 2.112699836472227 },
-            { id: 45, nom: "RGB146", type: "BG1", methode: "GPS", source: "EXTERNE", x: 470345.0, y: 1195550.0, latitude: 10.815138507893272, longitude: 2.728710933475818 },
-            { id: 46, nom: "RGB147", type: "BG1", methode: "GPS", source: "EXTERNE", x: 550022.0, y: 1209950.0, latitude: 10.945098899909238, longitude: 3.457803544603202 },
-            { id: 47, nom: "RGB148", type: "BG1", methode: "GPS", source: "EXTERNE", x: 334691.0, y: 1205480.0, latitude: 10.901350094729173, longitude: 1.487452641972125 },
-            { id: 48, nom: "RGB149", type: "BG1", methode: "GPS", source: "EXTERNE", x: 278256.0, y: 1221200.0, latitude: 11.040439608646386, longitude: 0.970309758507689 },
-            { id: 49, nom: "RGB150", type: "BG1", methode: "GPS", source: "EXTERNE", x: 382146.0, y: 1223520.0, latitude: 11.06625537771521, longitude: 1.92100422790102 },
-            { id: 50, nom: "RGB151", type: "BG1", methode: "GPS", source: "EXTERNE", x: 494047.0, y: 1232270.0, latitude: 11.147366452657272, longitude: 2.945475952406583 },
-            { id: 51, nom: "RGB152", type: "BG1", methode: "GPS", source: "EXTERNE", x: 432847.0, y: 1243150.0, latitude: 11.245097794510521, longitude: 2.384790655897738 },
-            { id: 52, nom: "RGB153", type: "BG1", methode: "GPS", source: "EXTERNE", x: 345496.0, y: 1261690.0, latitude: 11.409941013723772, longitude: 1.583833827528955 },
-            { id: 53, nom: "RGB154", type: "BG1", methode: "GPS", source: "EXTERNE", x: 551932.0, y: 1265160.0, latitude: 11.444436844299736, longitude: 3.476097897576389 },
-            { id: 54, nom: "RGB155", type: "BG1", methode: "GPS", source: "EXTERNE", x: 400526.0, y: 1269030.0, latitude: 11.478394869118818, longitude: 2.087967319368781 },
-            { id: 55, nom: "RGB156", type: "BG1", methode: "GPS", source: "EXTERNE", x: 513666.0, y: 1278240.0, latitude: 11.563046888901653, longitude: 3.12533995863265 },
-            { id: 56, nom: "RGB157", type: "BG1", methode: "GPS", source: "EXTERNE", x: 448009.0, y: 1276710.0, latitude: 11.548802886278832, longitude: 2.523183457989091 },
-            { id: 57, nom: "RGB159", type: "BG1", methode: "GPS", source: "EXTERNE", x: 477599.0, y: 1303320.0, latitude: 11.789831233545426, longitude: 2.794377783724539 },
-            { id: 58, nom: "RGB160", type: "BG1", methode: "GPS", source: "EXTERNE", x: 503794.0, y: 1349150.0, latitude: 12.204331819836026, longitude: 3.034878652687025 },
-            { id: 59, nom: "RGB158", type: "RGP", methode: "GPS", source: "EXTERNE", x: null, y: null, latitude: 11.840150154155831, longitude: 3.35591006145365 }
+            { id: 1, nom: "RGB101", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Mono", commune: "Grand-Popo", x: 348393.0, y: 690051.0, latitude: 6.241075733752071, longitude: 1.629604005947233 },
+            { id: 2, nom: "RGB102", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atlantique", commune: "Ouidah", x: 398553.0, y: 702978.0, latitude: 6.358990513875509, longitude: 2.082751530477678 },
+            { id: 3, nom: "RGB103", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Littoral", commune: "Cotonou", x: 439250.0, y: 705546.0, latitude: 6.382740761527744, longitude: 2.450677352409893 },
+            { id: 4, nom: "RGB104", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Ouémé", commune: "Avrankou", x: 461766.0, y: 724327.0, latitude: 6.552806980820429, longitude: 2.654161694417049 },
+            { id: 5, nom: "RGB105", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Mono", commune: "Lokossa", x: 358349.0, y: 734485.0, latitude: 6.643161925413181, longitude: 1.718572733693263 },
+            { id: 6, nom: "RGB106", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atlantique", commune: "Toffo", x: 408498.0, y: 752240.0, latitude: 6.804726361007808, longitude: 2.171932363711297 },
+            { id: 7, nom: "RGB107", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Couffo", commune: "Aplahoué", x: 353695.0, y: 767411.0, latitude: 6.94081869995031, longitude: 1.67566406682941 },
+            { id: 8, nom: "RGB108", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Plateau", commune: "Pobè", x: 463076.0, y: 772022.0, latitude: 6.984256213447642, longitude: 2.665714724935659 },
+            { id: 9, nom: "RGB109", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Zou", commune: "Abomey", x: 389691.0, y: 794033.0, latitude: 7.18240096965723, longitude: 2.000945099697696 },
+            { id: 10, nom: "RGB110", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Zou", commune: "Zagnanado", x: 432340.0, y: 798065.0, latitude: 7.21955057807979, longitude: 2.387141372455392 },
+            { id: 11, nom: "RGB111", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Plateau", commune: "Kétou", x: 471150.0, y: 819470.0, latitude: 7.413513930990767, longitude: 2.738559258664651 },
+            { id: 12, nom: "RGB112", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Zou", commune: "Djidja", x: 397696.0, y: 828619.0, latitude: 7.495371010720669, longitude: 2.072791292072317 },
+            { id: 13, nom: "RGB113", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Zou", commune: "Djidja", x: 356491.0, y: 836291.0, latitude: 7.563806013779666, longitude: 1.699181244762029 },
+            { id: 14, nom: "RGB114", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Savè", x: 456631.0, y: 859360.0, latitude: 7.77423685852318, longitude: 2.606661394676518 },
+            { id: 15, nom: "RGB115", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Savalou", x: 399321.0, y: 872686.0, latitude: 7.893968888681232, longitude: 2.086665430899564 },
+            { id: 16, nom: "RGB116", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Savalou", x: 352219.0, y: 883701.0, latitude: 7.99242421655662, longitude: 1.65910582763834 },
+            { id: 17, nom: "RGB117", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Savè", x: 446917.0, y: 891737.0, latitude: 8.067012183026327, longitude: 2.518224955898012 },
+            { id: 18, nom: "RGB118", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Glazoué", x: 409966.0, y: 908062.0, latitude: 8.214132824671976, longitude: 2.182579227910746 },
+            { id: 19, nom: "RGB119", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Bantè", x: 378485.0, y: 929457.0, latitude: 8.406934297207101, longitude: 1.896257255157756 },
+            { id: 20, nom: "RGB120", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Collines", commune: "Ouèssè", x: 435861.0, y: 938875.0, latitude: 8.493238024889978, longitude: 2.417256135660435 },
+            { id: 21, nom: "RGB121", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Donga", commune: "Bassila", x: 351300.0, y: 970675.0, latitude: 8.778888649982086, longitude: 1.648051366407762 },
+            { id: 22, nom: "RGB122", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Tchaourou", x: 456254.0, y: 981863.0, latitude: 8.882301141806678, longitude: 2.60212553614411 },
+            { id: 23, nom: "RGB123", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Donga", commune: "Bassila", x: 385948.0, y: 994186.0, latitude: 8.992517141709984, longitude: 1.96243203049488 },
+            { id: 24, nom: "RGB124", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Tchaourou", x: 420409.0, y: 1017270.0, latitude: 9.202002513614193, longitude: 2.275487944583081 },
+            { id: 25, nom: "RGB125", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Donga", commune: "Bassila", x: 340880.0, y: 1022170.0, latitude: 9.244165603141159, longitude: 1.551485641547566 },
+            { id: 26, nom: "RGB126", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Parakou", x: 457394.0, y: 1034290.0, latitude: 9.356513721925715, longitude: 2.611984083087078 },
+            { id: 27, nom: "RGB127", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Donga", commune: "Djougou", x: 388769.0, y: 1050100.0, latitude: 9.498275427793125, longitude: 1.986641327975443 },
+            { id: 28, nom: "RGB128", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Pèrèrè", x: 494216.0, y: 1057130.0, latitude: 9.563330763917575, longitude: 2.947295563614852 },
+            { id: 29, nom: "RGB129", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Donga", commune: "Djougou", x: 354658.0, y: 1073440.0, latitude: 9.708282766800387, longitude: 1.67510525527148 },
+            { id: 30, nom: "RGB130", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "N'Dali", x: 420818.0, y: 1079940.0, latitude: 9.768817130442638, longitude: 2.278027780303027 },
+            { id: 31, nom: "RGB131", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "N'Dali", x: 469174.0, y: 1089380.0, latitude: 9.854854780771454, longitude: 2.718850886136523 },
+            { id: 32, nom: "RGB132", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Nikki", x: 522975.0, y: 1098020.0, latitude: 9.933078569421756, longitude: 3.209591767049795 },
+            { id: 33, nom: "RGB133", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Kouandé", x: 338679.0, y: 1105110.0, latitude: 9.99401549729769, longitude: 1.528214024981164 },
+            { id: 34, nom: "RGB134", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Sinendé", x: 432824.0, y: 1124840.0, latitude: 10.17515871935464, longitude: 2.386731686242104 },
+            { id: 35, nom: "RGB135", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Péhunco", x: 390499.0, y: 1130990.0, latitude: 10.229814121794377, longitude: 2.000199566413529 },
+            { id: 36, nom: "RGB136", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Kalalé", x: 500935.0, y: 1124630.0, latitude: 10.173809416230437, longitude: 3.008535943998288 },
+            { id: 37, nom: "RGB137", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Natitingou", x: 322477.0, y: 1141320.0, latitude: 10.320663319846648, longitude: 1.378787094020405 },
+            { id: 38, nom: "RGB138", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Kalalé", x: 541479.0, y: 1137310.0, latitude: 10.288294330416868, longitude: 3.378810553222673 },
+            { id: 39, nom: "RGB139", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Cobly", x: 258564.0, y: 1152310.0, latitude: 10.416550005264602, longitude: 0.794670727998352 },
+            { id: 40, nom: "RGB140", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Borgou", commune: "Bembéréké", x: 475756.0, y: 1158960.0, latitude: 10.484247419764895, longitude: 2.77845026412682 },
+            { id: 41, nom: "RGB141", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Kouandé", x: 361025.0, y: 1168790.0, latitude: 10.57068158375645, longitude: 1.729748255507573 },
+            { id: 42, nom: "RGB143", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Matéri", x: 303556.0, y: 1186840.0, latitude: 10.731273019212875, longitude: 1.203665835713415 },
+            { id: 43, nom: "RGB144", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Gogounou", x: 514593.0, y: 1184480.0, latitude: 10.715089607939468, longitude: 3.133456180174098 },
+            { id: 44, nom: "RGB145", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Kérou", x: 403007.0, y: 1196700.0, latitude: 10.824368886436096, longitude: 2.112699836472227 },
+            { id: 45, nom: "RGB146", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Gogounou", x: 470345.0, y: 1195550.0, latitude: 10.815138507893272, longitude: 2.728710933475818 },
+            { id: 46, nom: "RGB147", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Segbana", x: 550022.0, y: 1209950.0, latitude: 10.945098899909238, longitude: 3.457803544603202 },
+            { id: 47, nom: "RGB148", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Tanguiéta", x: 334691.0, y: 1205480.0, latitude: 10.901350094729173, longitude: 1.487452641972125 },
+            { id: 48, nom: "RGB149", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Matéri", x: 278256.0, y: 1221200.0, latitude: 11.040439608646386, longitude: 0.970309758507689 },
+            { id: 49, nom: "RGB150", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Kérou", x: 382146.0, y: 1223520.0, latitude: 11.06625537771521, longitude: 1.92100422790102 },
+            { id: 50, nom: "RGB151", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Kandi", x: 494047.0, y: 1232270.0, latitude: 11.147366452657272, longitude: 2.945475952406583 },
+            { id: 51, nom: "RGB152", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Banikoara", x: 432847.0, y: 1243150.0, latitude: 11.245097794510521, longitude: 2.384790655897738 },
+            { id: 52, nom: "RGB153", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Atacora", commune: "Tanguiéta", x: 345496.0, y: 1261690.0, latitude: 11.409941013723772, longitude: 1.583833827528955 },
+            { id: 53, nom: "RGB154", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Malanville", x: 551932.0, y: 1265160.0, latitude: 11.444436844299736, longitude: 3.476097897576389 },
+            { id: 54, nom: "RGB155", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Banikoara", x: 400526.0, y: 1269030.0, latitude: 11.478394869118818, longitude: 2.087967319368781 },
+            { id: 55, nom: "RGB156", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Malanville", x: 513666.0, y: 1278240.0, latitude: 11.563046888901653, longitude: 3.12533995863265 },
+            { id: 56, nom: "RGB157", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Banikoara", x: 448009.0, y: 1276710.0, latitude: 11.548802886278832, longitude: 2.523183457989091 },
+            { id: 57, nom: "RGB159", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Karimama", x: 477599.0, y: 1303320.0, latitude: 11.789831233545426, longitude: 2.794377783724539 },
+            { id: 58, nom: "RGB160", type: "BG1", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Karimama", x: 503794.0, y: 1349150.0, latitude: 12.204331819836026, longitude: 3.034878652687025 },
+            { id: 59, nom: "RGB158", type: "RGP", methode: "GPS", source: "EXTERNE", departement: "Alibori", commune: "Malanville", x: null, y: null, latitude: 11.840150154155831, longitude: 3.35591006145365 }
         ];
 
         // ==================== CONFIGURATION ====================
@@ -1319,6 +1338,8 @@
             const cfg = typeConfig[point.type];
             const html = '<div class="popup-content"><h4>' + point.nom + '</h4>' +
                 '<p><strong>Type:</strong> <span class="' + tc + '">' + (cfg ? cfg.label : point.type) + '</span></p>' +
+                '<p><strong>Département:</strong> ' + point.departement + '</p>' +
+                '<p><strong>Commune:</strong> ' + point.commune + '</p>' +
                 '<p><strong>Méthode:</strong> ' + point.methode + '</p>' +
                 '<p><strong>Source:</strong> ' + point.source + '</p>' +
                 '<p><strong>X (UTM):</strong> ' + xV + '</p>' +
@@ -1459,7 +1480,9 @@
             const typeSelect = document.getElementById('type-filter');
             const methodeSelect = document.getElementById('methode-filter');
             const sourceSelect = document.getElementById('source-filter');
+            const deptSelect = document.getElementById('departement-filter');
             
+            // Types
             Object.keys(typeConfig).forEach(function(type) {
                 const option = document.createElement('option');
                 option.value = type;
@@ -1484,6 +1507,26 @@
                 option.textContent = s;
                 sourceSelect.appendChild(option);
             });
+
+            // Départements uniques (triés par nombre de points décroissant puis alpha)
+            const deptCounts = {};
+            geoPoints.forEach(function(p) {
+                if (!deptCounts[p.departement]) deptCounts[p.departement] = 0;
+                deptCounts[p.departement]++;
+            });
+            const depts = Object.keys(deptCounts).sort(function(a, b) {
+                if (deptCounts[b] !== deptCounts[a]) return deptCounts[b] - deptCounts[a];
+                return a.localeCompare(b);
+            });
+            depts.forEach(function(d) {
+                const option = document.createElement('option');
+                option.value = d;
+                option.textContent = d + ' (' + deptCounts[d] + ')';
+                deptSelect.appendChild(option);
+            });
+
+            // Initialiser les communes (toutes)
+            updateCommuneFilter();
 
             updateLegendCounts();
             updateStatCards();
@@ -1511,12 +1554,56 @@
             document.getElementById('sources-count').textContent = [...new Set(geoPoints.map(function(p) { return p.source; }))].length;
         }
 
+        function updateCommuneFilter(selectedDept) {
+            const communeSelect = document.getElementById('commune-filter');
+            communeSelect.innerHTML = '<option value="">Toutes les communes</option>';
+            
+            let points = geoPoints;
+            if (selectedDept) {
+                points = geoPoints.filter(function(p) { return p.departement === selectedDept; });
+            }
+            
+            const communes = [...new Set(points.map(function(p) { return p.commune; }))].sort();
+            communes.forEach(function(c) {
+                const count = points.filter(function(p) { return p.commune === c; }).length;
+                const option = document.createElement('option');
+                option.value = c;
+                option.textContent = c + ' (' + count + ')';
+                communeSelect.appendChild(option);
+            });
+        }
+
+        function onDepartementChange() {
+            const deptValue = document.getElementById('departement-filter').value;
+            updateCommuneFilter(deptValue || null);
+            // Reset commune selection when department changes
+            document.getElementById('commune-filter').value = '';
+            applyFilters();
+        }
+
+        function resetAdminFilters() {
+            document.getElementById('departement-filter').value = '';
+            document.getElementById('commune-filter').value = '';
+            updateCommuneFilter(null);
+            applyFilters();
+        }
+
         function applyFilters() {
             const typeFilter = document.getElementById('type-filter').value;
             const methodeFilter = document.getElementById('methode-filter').value;
             const sourceFilter = document.getElementById('source-filter').value;
+            const deptFilter = document.getElementById('departement-filter').value;
+            const communeFilter = document.getElementById('commune-filter').value;
 
             let filtered = geoPoints;
+
+            if (deptFilter) {
+                filtered = filtered.filter(function(p) { return p.departement === deptFilter; });
+            }
+
+            if (communeFilter) {
+                filtered = filtered.filter(function(p) { return p.commune === communeFilter; });
+            }
 
             if (typeFilter) {
                 filtered = filtered.filter(function(p) { return p.type === typeFilter; });
