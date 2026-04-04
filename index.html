@@ -1576,7 +1576,7 @@
                 </h1>
             </div>
             <p class="hero-subtitle">
-                Plateforme interactive de consultation et de gestion du <strong>réseau national des points géodésiques</strong> — 625 bornes de référence pour la topographie, la cartographie et l'aménagement du territoire.
+                Explorez les <strong>67 points de référence</strong> du réseau géodésique national du Bénin : <strong>60 bornes BG1</strong> et <strong>7 stations GNSS permanentes</strong>. Un outil essentiel pour les géomètres, topographes et spécialistes SIG.
             </p>
             <div class="hero-actions">
                 <a href="consultation.html" class="btn-hero-primary">
@@ -1599,7 +1599,7 @@
     <section class="stats-bar">
         <div class="stats-container">
             <div class="stat-item reveal">
-                <div class="stat-number" data-target="625">0</div>
+                <div class="stat-number" data-target="67">0</div>
                 <div class="stat-label">Points Géodésiques</div>
             </div>
             <div class="stat-item reveal reveal-delay-1">
@@ -1607,12 +1607,12 @@
                 <div class="stat-label">Bornes BG1</div>
             </div>
             <div class="stat-item reveal reveal-delay-2">
-                <div class="stat-number" data-target="1">0</div>
-                <div class="stat-label">Point RGP</div>
+                <div class="stat-number" data-target="7">0</div>
+                <div class="stat-label">Stations GNSS</div>
             </div>
             <div class="stat-item reveal reveal-delay-3">
                 <div class="stat-number" data-target="12">0</div>
-                <div class="stat-label">Départements couverts</div>
+                <div class="stat-label">Départements</div>
             </div>
         </div>
     </section>
@@ -1626,50 +1626,29 @@
             <h2 class="section-title">Un Géoportail Complet et Moderne</h2>
             <p class="section-desc">Des outils professionnels pour la consultation, l'analyse et l'exploitation des données géodésiques nationales.</p>
         </div>
-        <div class="features-grid">
-            <div class="feature-card reveal">
-                <div class="feature-icon">
-                    <i class="fas fa-map-marked-alt"></i>
+                <div class="features-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="feature-card reveal">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Cartographie Interactive</h3>
+                        <p class="feature-desc">Visualisez les 67 points de référence (BG1 et stations GNSS) sur une carte interactive avec 6 fonds de carte différents et navigation fluide.</p>
+                    </div>
+                    <div class="feature-card reveal reveal-delay-1">
+                        <div class="feature-icon">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <h3 class="feature-title">Filtres & Recherche</h3>
+                        <p class="feature-desc">Filtrez les points par département, commune, type et méthode. Recherchez par nom pour localiser rapidement un point géodésique spécifique.</p>
+                    </div>
+                    <div class="feature-card reveal reveal-delay-2">
+                        <div class="feature-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <h3 class="feature-title">Export Multi-Formats</h3>
+                        <p class="feature-desc">Exportez les données en GeoJSON, CSV, Shapefile, PDF ou Excel. Imprimez directement la carte avec les points affichés.</p>
+                    </div>
                 </div>
-                <h3 class="feature-title">Cartographie Interactive</h3>
-                <p class="feature-desc">Visualisez l'ensemble des 625 points géodésiques sur une carte dynamique avec fond de carte OSM et satellite, zoom fluide et navigation intuitive.</p>
-            </div>
-            <div class="feature-card reveal reveal-delay-1">
-                <div class="feature-icon">
-                    <i class="fas fa-search-location"></i>
-                </div>
-                <h3 class="feature-title">Recherche Avancée</h3>
-                <p class="feature-desc">Recherchez un point par son nom, filtrez par type (BG1/RGP), méthode d'acquisition GPS, ou source de données pour un accès rapide.</p>
-            </div>
-            <div class="feature-card reveal reveal-delay-2">
-                <div class="feature-icon">
-                    <i class="fas fa-crosshairs"></i>
-                </div>
-                <h3 class="feature-title">Géolocalisation</h3>
-                <p class="feature-desc">Localisez votre position en temps réel sur la carte pour identifier les points géodésiques les plus proches de vous.</p>
-            </div>
-            <div class="feature-card reveal reveal-delay-1">
-                <div class="feature-icon">
-                    <i class="fas fa-download"></i>
-                </div>
-                <h3 class="feature-title">Export de Données</h3>
-                <p class="feature-desc">Exportez les données en GeoJSON ou CSV pour une utilisation dans vos logiciels SIG tels que QGIS et ArcGIS.</p>
-            </div>
-            <div class="feature-card reveal reveal-delay-2">
-                <div class="feature-icon">
-                    <i class="fas fa-print"></i>
-                </div>
-                <h3 class="feature-title">Impression Cartographique</h3>
-                <p class="feature-desc">Générez des impressions haute qualité de la carte avec les points géodésiques pour vos rapports et présentations.</p>
-            </div>
-            <div class="feature-card reveal reveal-delay-3">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-pie"></i>
-                </div>
-                <h3 class="feature-title">Statistiques Détaillées</h3>
-                <p class="feature-desc">Consultez des statistiques complètes : distribution par type, par méthode, par source, avec indicateurs visuels clairs.</p>
-            </div>
-        </div>
     </section>
 
     <!-- Showcase Section -->
@@ -1687,26 +1666,14 @@
                     <span>À propos du projet</span>
                 </div>
                 <h2 class="showcase-title reveal">Moderniser l'Infrastructure Géodésique Nationale</h2>
-                <p class="showcase-text reveal">
-                    Ce géoportail s'inscrit dans une démarche de modernisation et de valorisation des données géodésiques de référence du Bénin. Les points géodésiques constituent le squelette fondamental de tout système d'information géographique national, permettant d'assurer la précision et la cohérence des travaux de topographie, de cartographie et d'aménagement du territoire.
-                </p>
+                <p class="showcase-text reveal">Ce géoportail met à disposition des professionnels de la géomatique, des géomètres et des chercheurs, un accès aux <strong>67 points de référence géodésique</strong> du Bénin, comprenant les bornes de premier ordre (BG1) et les stations GNSS permanentes. Il constitue un outil essentiel pour la réalisation de levés topographiques précis et la gestion de données spatiales fiables.</p>
                 <ul class="showcase-list reveal">
-                    <li>
-                        <i class="fas fa-check"></i>
-                        <span>625 points géodésiques couvrant les 12 départements</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        <span>Coordonnées UTM et géographiques complètes</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        <span>Données acquises par méthode GPS de précision</span>
-                    </li>
-                    <li>
-                        <i class="fas fa-check"></i>
-                        <span>Interface intuitive adaptée mobile et desktop</span>
-                    </li>
+                    <li><i class="fas fa-check"></i> 60 bornes géodésiques de premier ordre (BG1)</li>
+                    <li><i class="fas fa-check"></i> 7 stations GNSS permanentes en temps réel</li>
+                    <li><i class="fas fa-check"></i> Coordonnées géographiques et UTM complètes</li>
+                    <li><i class="fas fa-check"></i> Filtres par département et commune</li>
+                    <li><i class="fas fa-check"></i> Export en GeoJSON, CSV, Shapefile, PDF, Excel</li>
+                    <li><i class="fas fa-check"></i> Compatible mobile et bureau</li>
                 </ul>
                 <a href="consultation.html" class="btn-hero-primary reveal" style="display: inline-flex;">
                     <span>Accéder au Géoportail</span>
@@ -1724,38 +1691,24 @@
                     <div class="section-tag">
                         <span>Réseau géodésique</span>
                     </div>
-                    <h2 class="showcase-title">Un Réseau de 625 Points sur 12 Départements</h2>
+                    <h2 class="showcase-title">Un Réseau de 67 Points de Référence sur 12 Départements</h2>
                     <p class="showcase-text">
-                        Le réseau géodésique national du Bénin comprend 625 points de référence répartis en quatre catégories : les bornes géodésiques BG1, les points RGP, les bornes de l'IGN et les bornes topographiques. Chaque borne est implantée sur le terrain avec des coordonnées précises et des altitudes déterminées par GPS.
+                        Le réseau géodésique national du Bénin comprend 67 points de référence répartis en deux catégories : les bornes géodésiques de premier ordre (BG1) et les stations GNSS permanentes (SP). Chaque point est implanté sur le terrain avec des coordonnées précises et des altitudes déterminées par GNSS.
                     </p>
-                    <div class="network-types" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                    <div class="network-types" style="grid-template-columns: 1fr 1fr;">
                         <div class="network-type-card reveal reveal-delay-1">
                             <div class="network-type-icon" style="color: #e67e22;">
                                 <i class="fas fa-map-pin"></i>
                             </div>
                             <div class="network-type-name">BG1</div>
-                            <div class="network-type-count">Borne Geodesique — 60 pts</div>
-                        </div>
-                        <div class="network-type-card reveal reveal-delay-1">
-                            <div class="network-type-icon" style="color: #9b59b6;">
-                                <i class="fas fa-map-pin"></i>
-                            </div>
-                            <div class="network-type-name">RGP</div>
-                            <div class="network-type-count">Point de Reference — 1 pt</div>
+                            <div class="network-type-count">Bornes Géodésiques 1er Ordre — 60 pts</div>
                         </div>
                         <div class="network-type-card reveal reveal-delay-2">
-                            <div class="network-type-icon" style="color: #2563eb;">
-                                <i class="fas fa-map-pin"></i>
+                            <div class="network-type-icon" style="color: #e74c3c;">
+                                <i class="fas fa-satellite-dish"></i>
                             </div>
-                            <div class="network-type-name">IGN</div>
-                            <div class="network-type-count">Bornes IGN — 244 pts</div>
-                        </div>
-                        <div class="network-type-card reveal reveal-delay-3">
-                            <div class="network-type-icon" style="color: #059669;">
-                                <i class="fas fa-map-pin"></i>
-                            </div>
-                            <div class="network-type-name">CAD</div>
-                            <div class="network-type-count">Bornes Topographiques — 321 pts</div>
+                            <div class="network-type-name">SP</div>
+                            <div class="network-type-count">Stations GNSS Permanentes — 7 pts</div>
                         </div>
                     </div>
                 </div>
@@ -1802,9 +1755,7 @@
         <div class="cta-glow"></div>
         <div class="cta-content reveal">
             <h2 class="cta-title">Prêt à Explorer le <span>Réseau Géodésique</span> du Bénin ?</h2>
-            <p class="cta-text">
-                Accédez maintenant au géoportail interactif pour consulter, filtrer et analyser les 625 points géodésiques répartis sur l'ensemble du territoire national.
-            </p>
+                    <p class="cta-text">Explorez dès maintenant le réseau géodésique de référence du Bénin. Accédez aux coordonnées précises des bornes BG1 et stations GNSS pour vos projets de topographie, de cartographie et de géomatique.</p>
             <a href="consultation.html" class="cta-btn">
                 <i class="fas fa-globe-africa"></i>
                 <span>Lancer le Géoportail</span>
